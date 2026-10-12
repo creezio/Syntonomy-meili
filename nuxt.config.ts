@@ -23,6 +23,7 @@ export default defineNuxtConfig({
     },
     runtimeConfig: {
         meilisearchSingleInstanceProxyMode: 'auto',
+        meilisearchGatewayManaged: false,
         meilisearchHost: '',
         meilisearchApiKey: '',
         public: {

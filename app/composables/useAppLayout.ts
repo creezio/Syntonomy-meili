@@ -4,7 +4,9 @@ import { useMeilisearchStore } from '@/stores/meilisearch'
 export function useAppLayout() {
     const meilisearchStore = useMeilisearchStore()
     const route = useRoute()
-    const navigationItems = computed<NavigationMenuItem[]>(() => [
+    const { isAdmin, managed } = useAccess()
+    const navigationItems = computed<NavigationMenuItem[]>(() => {
+        const items: NavigationMenuItem[] = [
         {
             label: 'Dashboard',
             icon: 'i-lucide-layout-dashboard',
@@ -54,7 +56,10 @@ export function useAppLayout() {
                 to: '/backups/snapshots'
             }]
         },
-    ])
+        ]
+        return items.filter(item => isAdmin.value || ['/dashboard', '/indexes', '/tasks'].includes(String(item.to ?? '')))
+            .concat(managed.value && isAdmin.value ? [{ label: 'Utilisateurs', icon: 'i-lucide-users-round', to: '/users', active: route.path === '/users' }] : [])
+    })
 
     const changeInstanceModalOpen = ref(false)
     const currentMeilisearchInstanceName = computed(() => meilisearchStore.currentInstance?.name ?? 'Default')

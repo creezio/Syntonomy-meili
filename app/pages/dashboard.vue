@@ -9,6 +9,7 @@ definePageMeta({
     breadcrumbs: [{ label: 'Dashboard' }]
 })
 
+const { isAdmin } = useAccess()
 const { instanceStats, version, isFetching, error, fetchStats, fetchVersion } = useStats()
 const meilisearchStore = useMeilisearchStore()
 const currentInstanceId = computed(() => meilisearchStore.currentInstance?.id ?? null)
@@ -77,7 +78,7 @@ watch(currentInstanceId, async (instanceId, previousInstanceId) => {
             class="gap-6 xl:grid-cols-4"
         >
             <UPageCard
-                v-if="instanceStats"
+                v-if="instanceStats && isAdmin"
                 icon="i-lucide-database"
                 title="Database Size"
                 :description="formatBytes(instanceStats.databaseSize)"
@@ -93,7 +94,7 @@ watch(currentInstanceId, async (instanceId, previousInstanceId) => {
             />
 
             <UPageCard
-                v-if="instanceStats"
+                v-if="instanceStats && isAdmin"
                 icon="i-lucide-clock"
                 title="Last Updated"
                 :description="formatDate(instanceStats.lastUpdate)"

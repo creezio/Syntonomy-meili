@@ -35,6 +35,7 @@ meili_data
 .env.meilisearch
 .env.tunnel
 .dashboard-login.json
+.dashboard-users/
 .migration-source.json
 .deployed-source
 htpasswd

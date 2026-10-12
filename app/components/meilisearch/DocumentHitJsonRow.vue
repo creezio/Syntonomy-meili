@@ -7,6 +7,7 @@ const props = defineProps<{
     primaryKey?: string,
     hit: Hit,
     showRankingScore?: boolean,
+    canManage?: boolean,
 }>()
 
 defineEmits<{
@@ -70,7 +71,7 @@ const rankingScoreColor = computed(() => getRankingScoreColor(rankingScore.value
                         @click="expandedJson = !expandedJson"
                     />
                 </UTooltip>
-                <UTooltip text="Edit document">
+                <UTooltip v-if="props.canManage !== false" text="Edit document">
                     <UButton
                         aria-label="Edit document"
                         icon="i-lucide-pencil"
@@ -80,7 +81,7 @@ const rankingScoreColor = computed(() => getRankingScoreColor(rankingScore.value
                     />
                 </UTooltip>
                 <UTooltip
-                    v-if="props.primaryKey"
+                    v-if="props.primaryKey && props.canManage !== false"
                     text="Delete document"
                 >
                     <UButton

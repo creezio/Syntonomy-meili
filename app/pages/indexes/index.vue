@@ -12,6 +12,7 @@ definePageMeta({
     breadcrumbs: [{ label: 'Dashboard', to: '/dashboard' }, { label: 'Indexes' }]
 })
 
+const { isAdmin } = useAccess()
 const { instanceStats, isFetching: isFetchingStats, fetchStats } = useStats()
 const {
     currentPage,
@@ -77,6 +78,7 @@ async function changePageSize(pageSize: number) {
 <template>
     <AppDashboardPanel id="indexes">
         <CreateIndexModal
+            v-if="isAdmin"
             v-model:open="createIndexModalOpen"
             @index-created="fetchData"
         />
@@ -93,6 +95,7 @@ async function changePageSize(pageSize: number) {
                     @click="fetchData"
                 />
                 <UButton
+                    v-if="isAdmin"
                     label="New Index"
                     icon="i-lucide-plus"
                     @click="createIndexModalOpen = true"

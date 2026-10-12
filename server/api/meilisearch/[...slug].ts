@@ -17,6 +17,11 @@ import { joinURL, withoutBase } from 'ufo'
  */
 export default defineEventHandler(async (event) => {
     const config = useRuntimeConfig(event)
+    // The Syntonomy gateway owns user authentication and scoped engine access.
+    // Disable this legacy admin proxy to prevent an alternate-route bypass.
+    if (String(config.meilisearchGatewayManaged) === 'true') {
+        throw createError({ status: 403, statusText: 'Use Authenticated Gateway' })
+    }
     if (String(config.meilisearchSingleInstanceProxyMode).toLowerCase() === 'false') {
         throw createError({ status: 403, statusText: 'Proxy Disabled' })
     }

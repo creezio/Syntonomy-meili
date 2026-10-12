@@ -11,6 +11,7 @@ definePageMeta({
     title: 'Index Settings',
 })
 
+const { canManage } = useAccess()
 const route = useRoute()
 const indexUid = computed(() => String(route.params.uid ?? ''))
 const { settings, isFetching, isLoadingTask, error, fetchSettings, updateSettings } = useSettings()
@@ -91,7 +92,7 @@ watch(indexUid, () => {
         <Teleport to="#sub-page-actions">
             <AppPageActions>
                 <UButton
-                    v-if="!editMode"
+                    v-if="canManage && !editMode"
                     label="Edit"
                     icon="i-lucide-pencil"
                     color="neutral"
@@ -99,7 +100,7 @@ watch(indexUid, () => {
                     :disabled="isFetching.allSettings || !settings"
                     @click="startEditing"
                 />
-                <template v-else>
+                <template v-else-if="canManage">
                     <UButton
                         label="Cancel"
                         color="neutral"

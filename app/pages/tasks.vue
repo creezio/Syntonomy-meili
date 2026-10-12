@@ -14,6 +14,7 @@ definePageMeta({
     breadcrumbs: [{ label: 'Dashboard', to: '/dashboard' }, { label: 'Tasks' }]
 })
 
+const { isAdmin } = useAccess()
 const { tasks, isFetching: isFetchingTasks, hasMore, error, fetchTasks, fetchAndAppendTasks, pollLatestTasks, deleteTasksQuery, isDeletingTasks, deleteTasks } = useTasks()
 const { indexes, isFetching: isFetchingIndexes, fetchAllIndexes } = useIndexes()
 const tasksPollingEnabled = useStorage<boolean>('meilisearch-tasks-polling-enabled', false)
@@ -193,6 +194,7 @@ const columnPinning = ref({ right: ['actions'] })
                 @task-updated="handleTaskUpdated"
             />
             <DeleteTasksModal
+                v-if="isAdmin"
                 v-model:open="deleteTasksModalOpen"
                 v-model:query="deleteTasksQuery"
                 @submit="handleDeleteTasks"
@@ -211,6 +213,7 @@ const columnPinning = ref({ right: ['actions'] })
                     @click="refreshTasksList()"
                 />
                 <UButton
+                    v-if="isAdmin"
                     label="Delete"
                     icon="i-lucide-trash-2"
                     color="error"

@@ -22,6 +22,8 @@ services:
       dockerfile: Dockerfile.vps
     restart: unless-stopped
     env_file: .env.production
+    environment:
+      NUXT_MEILISEARCH_GATEWAY_MANAGED: "true"
     expose:
       - "3000"
     networks: [dashboard]
@@ -38,11 +40,14 @@ services:
   access:
     image: syntonomy-meili:current
     entrypoint: [node, /ops/auth.mjs]
+    env_file: .env.production
     restart: unless-stopped
     ports:
       - "127.0.0.1:18920:8080"
     volumes:
       - ./auth.mjs:/ops/auth.mjs:ro
+      - ./ops/access-control.mjs:/ops/access-control.mjs:ro
+      - ./.dashboard-users:/run/dashboard-users
       - ./.dashboard-login.json:/run/dashboard-login.json:ro
     networks: [dashboard]
     depends_on: [dashboard]

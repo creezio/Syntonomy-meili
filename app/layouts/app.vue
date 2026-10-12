@@ -2,6 +2,7 @@
 import { useAppLayout } from '@/composables/useAppLayout'
 import ChangeInstanceModal from '@/components/meilisearch/ChangeInstanceModal.vue'
 
+const { user, managed, roleLabel, logout } = useAccess()
 const {
     navigationItems,
     isSingleInstanceProxyMode,
@@ -41,7 +42,7 @@ const {
                     class="flex min-w-0 w-full items-center gap-2"
                 >
                     <LogoLink img-classes="h-5" />
-                    <span class="truncate text-sm font-semibold text-highlighted">Meilisearch Manager</span>
+                    <span class="truncate text-sm font-semibold text-highlighted">Syntonomy Meili</span>
                 </div>
             </template>
 
@@ -56,11 +57,15 @@ const {
                     />
                     <UNavigationMenu
                         :collapsed="collapsed"
-                        :items="[{ label: 'Open Source', icon: 'i-simple-icons-github', to: 'https://github.com/connorabbas/meilisearch-manager', target: '_blank', rel: 'noopener noreferrer' }]"
+                        :items="[{ label: 'Open Source', icon: 'i-simple-icons-github', to: 'https://github.com/creezio/Syntonomy-meili', target: '_blank', rel: 'noopener noreferrer' }]"
                         orientation="vertical"
                         tooltip
                         class="mt-auto"
                     />
+                    <div v-if="managed && user" class="border-t border-default pt-3">
+                        <div v-if="!collapsed" class="px-2 pb-2 text-sm"><p class="truncate font-medium">{{ user.displayName }}</p><p class="text-muted">{{ roleLabel }}</p></div>
+                        <UButton :label="collapsed ? undefined : 'Se déconnecter'" aria-label="Se déconnecter" icon="i-lucide-log-out" color="neutral" variant="ghost" block @click="logout" />
+                    </div>
                     <UTooltip
                         v-if="collapsed"
                         :content="{ side: 'right' }"

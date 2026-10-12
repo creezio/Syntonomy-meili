@@ -49,3 +49,19 @@ Les scripts `ops/audit.mjs`, `ops/cutover.mjs` et `ops/backup.mjs` utilisent la 
 Ne jamais écraser un index personnel déjà utilisé avec une migration de reprise. Le script de migration est destiné à la destination neuve de cette migration, avant sa mise en service.
 
 Avant un rebuild important, vérifier l'espace disque. Réutiliser le checkout et les caches existants. Conserver la compilation en service ; ne supprimer que les temporaires propres au travail, après avoir vérifié qu'aucun processus ne les utilise.
+
+## Comptes individuels et droits par index
+
+La page `/users`, réservée aux administrateurs, permet de créer, modifier, désactiver et supprimer les comptes, de réinitialiser leur mot de passe et de leur attribuer des index précis. Le compte initial `pegolotti` reste administrateur avec son mot de passe existant.
+
+- **Admin** : tous les index, gestion des comptes et des clés, sauvegardes et réglages globaux.
+- **Gestionnaire** : consultation, recherche, import, modification et suppression de documents, réglages et clé primaire des index attribués. Pas de création/suppression d’index ni d’administration globale.
+- **Lecteur** : consultation, recherche et export des documents, lecture des réglages et des tâches des index attribués.
+
+Les permissions sont appliquées à chaque requête par le gateway d’accès. Les comptes non administrateurs utilisent des clés Meilisearch avec actions et index limités, qui restent côté serveur. Le proxy administrateur historique de Nitro est désactivé dans ce déploiement avec `NUXT_MEILISEARCH_GATEWAY_MANAGED=true`. Les statistiques et tâches ne révèlent pas les index d’autres utilisateurs.
+
+Le registre privé `.dashboard-users/users.json` contient les hashes scrypt, les révisions de sessions, la clé de signature et les clés Meilisearch des utilisateurs. Il est persistant, exclu de Git et des builds, et doit être sauvegardé avec les fichiers privés de configuration : un dump Meilisearch ne remplace pas une sauvegarde de ce registre. Les changements de compte révoquent ses sessions et remplacent sa clé limitée. La déconnexion révoque les sessions du compte. Un administrateur ne peut pas supprimer son propre compte ni retirer ses propres droits.
+
+Le fichier de connexion initial sert seulement à créer le premier compte lorsque le registre n’existe pas. Les nouveaux mots de passe ne sont jamais enregistrés en clair dans le registre ni retournés par l’API. Il n’y a pas d’inscription publique ou d’envoi automatique de mot de passe.
+
+Validation du gateway : `node --test tests/access-control.test.mjs`. Les tests couvrent les rôles, la séparation des index, les requêtes directes, les origines étrangères, la révocation, la persistance et les modifications concurrentes.

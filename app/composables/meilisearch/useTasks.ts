@@ -66,6 +66,7 @@ function appendFetchedTasks(existingTasks: Task[], incomingTasks: Task[]): Task[
 }
 
 export function useTasks() {
+    const { isAdmin } = useAccess()
     const toast = useToast()
     const meilisearchStore = useMeilisearchStore()
 
@@ -236,7 +237,7 @@ export function useTasks() {
                 duration: 0,
                 progress: false,
                 ui: { icon: 'motion-safe:animate-spin' },
-                actions: [{
+                actions: isAdmin.value ? [{
                     label: 'Cancel task',
                     color: 'error',
                     variant: 'outline',
@@ -263,7 +264,7 @@ export function useTasks() {
                             })
                         }
                     },
-                }],
+                }] : [],
             })
             // Give the user time to read the enqueued task notice.
             await new Promise(resolve => setTimeout(resolve, 3000))

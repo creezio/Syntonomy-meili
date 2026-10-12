@@ -16,6 +16,7 @@ const emit = defineEmits<{
 
 const headerTitle = computed(() => `Task ${props.task.uid}`)
 const toast = useToast()
+const { isAdmin } = useAccess()
 const { fetchTask, cancelTask } = useTasks()
 const isCancelling = ref(false)
 const cancellationRequested = ref(false)
@@ -80,7 +81,7 @@ async function handleCancelTask() {
         </template>
 
         <template
-            v-if="props.task.status === 'processing'"
+            v-if="props.task.status === 'processing' && isAdmin"
             #footer
         >
             <div class="flex w-full items-center justify-between gap-4">

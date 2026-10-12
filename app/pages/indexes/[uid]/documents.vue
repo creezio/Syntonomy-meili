@@ -20,6 +20,7 @@ import { getRankingScoreColor, looksLikeAnImageUrl } from '@/utils'
 
 definePageMeta({ layout: 'app', title: 'Index Documents' })
 
+const { canManage } = useAccess()
 const route = useRoute()
 const indexUid = computed(() => String(route.params.uid ?? ''))
 
@@ -125,6 +126,7 @@ watch(hasGeoView, (value) => {
 }, { immediate: true })
 
 function editDocument(document: RecordAny) {
+    if (!canManage.value) return
     currentDocument.value = document
     editSlideoverOpen.value = true
 }
@@ -132,11 +134,13 @@ watch(editSlideoverOpen, (open) => {
     if (!open && !isSendingTask.value) setTimeout(() => { currentDocument.value = null }, 250)
 })
 function deleteDocument(documentId: string | number) {
+    if (!canManage.value) return
     confirmDeleteDocument(indexUid.value, documentId, () => {
         void Promise.all([searchPaginated(indexUid.value), fetchIndexStats(indexUid.value)])
     })
 }
 function documentActions(document: RecordAny): DropdownMenuItem[] {
+    if (!canManage.value) return []
     return [
         { label: 'Edit', icon: 'i-lucide-pencil', onSelect: () => editDocument(document) },
         ...(primaryKey.value ? [{
@@ -254,6 +258,7 @@ onMounted(() => {
                     @click="exportModalOpen = true"
                 />
                 <UButton
+                    v-if="canManage"
                     label="Import Documents"
                     icon="i-lucide-plus"
                     @click="importSlideoverOpen = true"
@@ -442,6 +447,7 @@ onMounted(() => {
 
         <Teleport to="body">
             <ImportDocumentsSlideover
+                v-if="canManage"
                 v-model:open="importSlideoverOpen"
                 :index-uid="indexUid"
                 :primary-key="currentIndex?.primaryKey"
@@ -592,7 +598,7 @@ onMounted(() => {
                     </UPopover>
                 </template>
                 <template #actions-cell="{ row }">
-                    <UDropdownMenu :items="documentActions(row.original)">
+                    <UDropdownMenu v-if="canManage" :items="documentActions(row.original)">
                         <UButton
                             aria-label="Show document actions"
                             icon="i-lucide-ellipsis-vertical"
@@ -642,6 +648,7 @@ onMounted(() => {
                     v-for="(hit, index) in hits"
                     :key="(primaryKey && hit[primaryKey]) ?? index"
                     :hit="hit"
+                    :can-manage="canManage"
                     :primary-key="primaryKey"
                     :show-ranking-score="showRankingScore"
                     @edit="editDocument"

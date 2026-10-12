@@ -8,6 +8,7 @@ definePageMeta({
     title: 'Edit Index',
 })
 
+const { isAdmin } = useAccess()
 const route = useRoute()
 const indexUid = computed(() => String(route.params.uid ?? ''))
 const { currentIndex, isFetching, error, fetchIndex } = useIndexes()
@@ -100,6 +101,7 @@ function handleDeleteAllDocuments() {
                             @click="handleDeleteAllDocuments"
                         />
                         <UButton
+                            v-if="isAdmin"
                             label="Delete this index"
                             icon="i-lucide-trash-2"
                             color="error"
