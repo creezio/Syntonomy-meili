@@ -1,0 +1,66 @@
+services:
+  meilisearch:
+    image: getmeili/meilisearch:v1.54.0
+    restart: unless-stopped
+    env_file: .env.meilisearch
+    ports:
+      - "127.0.0.1:18921:7700"
+    volumes:
+      - ./meili-data:/meili_data
+    networks: [dashboard]
+    mem_limit: 10g
+    cpus: 4
+    healthcheck:
+      test: [CMD, curl, -fsS, http://127.0.0.1:7700/health]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  dashboard:
+    image: syntonomy-meili:current
+    build:
+      context: .
+      dockerfile: Dockerfile.vps
+    restart: unless-stopped
+    env_file: .env.production
+    expose:
+      - "3000"
+    networks: [dashboard]
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 768m
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/api/config').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+  access:
+    image: syntonomy-meili:current
+    entrypoint: [node, /ops/auth.mjs]
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:18920:8080"
+    volumes:
+      - ./auth.mjs:/ops/auth.mjs:ro
+      - ./.dashboard-login.json:/run/dashboard-login.json:ro
+    networks: [dashboard]
+    depends_on: [dashboard]
+    mem_limit: 128m
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    restart: unless-stopped
+    network_mode: host
+    env_file: .env.tunnel
+    command: tunnel --no-autoupdate run
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    security_opt: [no-new-privileges:true]
+    mem_limit: 128m
+networks:
+  dashboard:

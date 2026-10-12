@@ -66,3 +66,14 @@ docs/
 
 # Logs
 *.log
+
+# Syntonomy VPS runtime, credentials and migration state
+.env.production
+.env.meilisearch
+.env.tunnel
+.dashboard-login.json
+.migration-source.json
+.deployed-source
+htpasswd
+meili-data/
+migration/
